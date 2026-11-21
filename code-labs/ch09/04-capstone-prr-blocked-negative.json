@@ -1,0 +1,17 @@
+{
+  "document_type": "OrderFlowCapstonePRR",
+  "platform": "unbounded-shadow-prr-anti-pattern",
+  "prr_status": "BLOCKED",
+  "gates_passed": 14,
+  "gates_total": 20,
+  "domains": [
+    "gateway_routing",
+    "otel_genai_evals",
+    "agentic_finops"
+  ],
+  "finops": {
+    "per_task_token_cap_enforced": false,
+    "claims_native_focus12_tokens": true,
+    "gateway_otel_etl_enabled": false
+  }
+}

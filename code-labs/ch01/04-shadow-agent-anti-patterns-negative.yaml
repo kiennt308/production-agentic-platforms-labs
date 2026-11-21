@@ -1,0 +1,29 @@
+apiVersion: orderflow.platform/v1
+kind: OrderFlowAgentPlatformBaseline
+metadata:
+  name: shadow-agent-unisolated-anti-pattern
+  namespace: default
+spec:
+  gateway:
+    allow_direct_egress: true
+    mcp_session_encryption: false
+  sandbox:
+    runtime_class: "runc"
+    warm_pool_min_replicas: 0
+  security:
+    owasp_asi_covered:
+      - ASI01
+      - ASI02
+    kill_switch_enabled: false
+  observability:
+    provider_attribute: "gen_ai.system"
+    uses_deprecated_gen_ai_system: true
+    mcp_meta_traceparent: false
+    default_content_capture: true
+  evals:
+    promptfoo_enabled: false
+    deepeval_enabled: false
+  finops:
+    focus_bridge: "none"
+    claims_native_focus12_tokens: true
+    token_budget_enforced: false

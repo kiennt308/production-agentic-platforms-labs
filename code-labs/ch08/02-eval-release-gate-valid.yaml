@@ -1,0 +1,18 @@
+apiVersion: orderflow.platform/v1
+kind: OrderFlowDeepEvalGateSpec
+metadata:
+  name: orderflow-deepeval-release-gate
+  namespace: orderflow-evals
+spec:
+  author: "Kien Nguyen"
+  deepeval_version: "v4.3.4"
+  pytest_version: "v9.1.1"
+  check_tool_trajectory: true
+  min_faithfulness: 0.90
+  min_task_completion: 0.90
+  max_hallucination: 0.05
+  block_on_unverified_claim: true
+  composite_weights:
+    tool_correctness: 0.35
+    task_completion: 0.35
+    faithfulness: 0.30

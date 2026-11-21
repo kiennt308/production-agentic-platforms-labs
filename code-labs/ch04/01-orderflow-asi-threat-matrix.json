@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "author": "Kien Nguyen",
+    "framework": "OWASP Top 10 for Agentic Applications (ASI01-ASI10)",
+    "chapter": "ch04"
+  },
+  "threats": [
+    {
+      "id": "ASI01",
+      "name": "Agent Goal Hijack",
+      "affected_fleets": [
+        "urn:agent:orderflow-devops",
+        "urn:agent:orderflow-sre"
+      ],
+      "vol10_mitigation": "agentgateway tool-output guard & RAG filter",
+      "control_chapter": "ch02, ch05"
+    },
+    {
+      "id": "ASI02",
+      "name": "Tool Misuse and Exploitation",
+      "affected_fleets": [
+        "urn:agent:orderflow-devops",
+        "urn:agent:orderflow-sre"
+      ],
+      "vol10_mitigation": "CEL MCP tool allowlist & external OPA check",
+      "control_chapter": "ch02, ch05"
+    },
+    {
+      "id": "ASI03",
+      "name": "Identity and Privilege Abuse",
+      "affected_fleets": [
+        "urn:agent:orderflow-aws",
+        "urn:agent:orderflow-devops"
+      ],
+      "vol10_mitigation": "OAuth token exchange & <=300s scoped TTL",
+      "control_chapter": "ch02, ch04"
+    },
+    {
+      "id": "ASI04",
+      "name": "Agentic Supply Chain Vulnerabilities",
+      "affected_fleets": [
+        "urn:agent:orderflow-devsecops",
+        "urn:agent:orderflow-devops"
+      ],
+      "vol10_mitigation": "SHA-256 pinned MCP servers & SLSA provenance",
+      "control_chapter": "ch04"
+    },
+    {
+      "id": "ASI05",
+      "name": "Unexpected Code Execution",
+      "affected_fleets": [
+        "urn:agent:orderflow-sre",
+        "urn:agent:orderflow-devops"
+      ],
+      "vol10_mitigation": "SIG Apps agent-sandbox + gVisor runsc",
+      "control_chapter": "ch03"
+    },
+    {
+      "id": "ASI06",
+      "name": "Memory and Context Poisoning",
+      "affected_fleets": [
+        "urn:agent:orderflow-sre",
+        "urn:agent:orderflow-aws"
+      ],
+      "vol10_mitigation": "RAG payload strip & read-only context seal",
+      "control_chapter": "ch05"
+    },
+    {
+      "id": "ASI07",
+      "name": "Insecure Inter-Agent Communication",
+      "affected_fleets": [
+        "urn:agent:orderflow-aws",
+        "urn:agent:orderflow-devsecops"
+      ],
+      "vol10_mitigation": "ECDSA P-256 signed A2A envelopes + mTLS",
+      "control_chapter": "ch02, ch05"
+    },
+    {
+      "id": "ASI08",
+      "name": "Cascading Failures",
+      "affected_fleets": [
+        "urn:agent:orderflow-sre",
+        "urn:agent:orderflow-devops"
+      ],
+      "vol10_mitigation": "Per-tenant token limits & hop circuit breaker",
+      "control_chapter": "ch02, ch05"
+    },
+    {
+      "id": "ASI09",
+      "name": "Human-Agent Trust Exploitation",
+      "affected_fleets": [
+        "urn:agent:orderflow-devops",
+        "urn:agent:orderflow-devsecops"
+      ],
+      "vol10_mitigation": "Immutable diff approval & DeepEval cite gate",
+      "control_chapter": "ch04, ch08"
+    },
+    {
+      "id": "ASI10",
+      "name": "Rogue Agents",
+      "affected_fleets": [
+        "urn:agent:orderflow-sre",
+        "urn:agent:orderflow-aws",
+        "urn:agent:orderflow-devsecops"
+      ],
+      "vol10_mitigation": "Out-of-band Kill Switch & OTel trace audit",
+      "control_chapter": "ch05, ch06"
+    }
+  ]
+}

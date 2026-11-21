@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "author": "Kien Nguyen",
+    "chapter": "ch03",
+    "runtime": "gvisor-runsc"
+  },
+  "scenarios": [
+    {
+      "name": "steady_ci_checks",
+      "total_requests": 200,
+      "warm_pool_replicas": 4,
+      "arrival_interval_ms": 300.0,
+      "burst_every_k": 50,
+      "burst_size": 2,
+      "warm_claim_ms": 18.0,
+      "cold_gvisor_boot_ms": 420.0,
+      "exec_duration_ms": 95.0,
+      "ram_mb_per_sandbox": 256,
+      "slo_p99_ms": 200.0
+    },
+    {
+      "name": "pr_merge_burst",
+      "total_requests": 200,
+      "warm_pool_replicas": 6,
+      "arrival_interval_ms": 240.0,
+      "burst_every_k": 25,
+      "burst_size": 3,
+      "warm_claim_ms": 18.0,
+      "cold_gvisor_boot_ms": 420.0,
+      "exec_duration_ms": 95.0,
+      "ram_mb_per_sandbox": 256,
+      "slo_p99_ms": 200.0
+    },
+    {
+      "name": "incident_storm_peak",
+      "total_requests": 200,
+      "warm_pool_replicas": 8,
+      "arrival_interval_ms": 150.0,
+      "burst_every_k": 20,
+      "burst_size": 4,
+      "warm_claim_ms": 18.0,
+      "cold_gvisor_boot_ms": 420.0,
+      "exec_duration_ms": 95.0,
+      "ram_mb_per_sandbox": 256,
+      "slo_p99_ms": 200.0
+    },
+    {
+      "name": "undersized_pool_warning",
+      "total_requests": 200,
+      "warm_pool_replicas": 1,
+      "arrival_interval_ms": 120.0,
+      "burst_every_k": 10,
+      "burst_size": 4,
+      "warm_claim_ms": 18.0,
+      "cold_gvisor_boot_ms": 420.0,
+      "exec_duration_ms": 95.0,
+      "ram_mb_per_sandbox": 256,
+      "slo_p99_ms": 200.0
+    }
+  ]
+}

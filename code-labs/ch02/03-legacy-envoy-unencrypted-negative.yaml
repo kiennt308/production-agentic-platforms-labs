@@ -1,0 +1,32 @@
+# Author: Kien Nguyen
+# Negative control: retired Envoy v1alpha1 + unencrypted MCP policy
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIGatewayRoute
+metadata:
+  name: legacy-envoy-bypass-route
+  namespace: default
+spec:
+  direct_egress_bypass: true
+  mcp:
+    oauth_exchange_enabled: false
+  rate_limiting:
+    token_budget_enabled: false
+  rules:
+    - matches:
+        - headers:
+            - name: x-ai-eg-model
+              value: "unbounded-gpt"
+      backendRefs:
+        - name: direct-public-egress
+---
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayPolicy
+metadata:
+  name: unencrypted-mcp-no-cel-policy
+  namespace: default
+spec:
+  mcp:
+    session_encryption_enabled: false
+    cel_allowed_tools: []
+  guardrails:
+    tool_output_inspection: false

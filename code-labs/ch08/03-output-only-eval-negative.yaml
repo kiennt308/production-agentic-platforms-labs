@@ -1,0 +1,10 @@
+apiVersion: orderflow.platform/v1
+kind: OrderFlowDeepEvalGateSpec
+metadata:
+  name: output-only-eval-anti-pattern
+  namespace: default
+spec:
+  check_tool_trajectory: false
+  min_faithfulness: 0.50
+  min_task_completion: 0.60
+  block_on_unverified_claim: false

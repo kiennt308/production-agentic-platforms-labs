@@ -1,0 +1,76 @@
+# Author: Kien Nguyen
+# Chapter 03: K8s SIG Apps agent-sandbox v1.0.x + gVisor (runsc)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: gvisor
+handler: runsc
+scheduling:
+  nodeSelector:
+    orderflow.io/sandbox-runtime: gvisor
+---
+apiVersion: agents.x-k8s.io/v1beta1
+kind: Sandbox
+metadata:
+  name: orderflow-code-runner-01
+  namespace: orderflow-sandboxes
+spec:
+  runtimeClassName: gvisor
+  shutdownPolicy: Delete
+  podTemplate:
+    spec:
+      containers:
+        - name: runner
+          image: ghcr.io/orderflow/agent-runner:v1.0.11
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+---
+apiVersion: extensions.agents.x-k8s.io/v1alpha1
+kind: SandboxTemplate
+metadata:
+  name: orderflow-gvisor-runner-tmpl
+  namespace: orderflow-sandboxes
+spec:
+  runtimeClassName: gvisor
+  template:
+    spec:
+      runtimeClassName: gvisor
+      automountServiceAccountToken: false
+      volumes:
+        - name: scratch
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
+      containers:
+        - name: code-runner
+          image: ghcr.io/orderflow/agent-runner:v1.0.11
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 65532
+          volumeMounts:
+            - name: scratch
+              mountPath: /tmp
+---
+apiVersion: extensions.agents.x-k8s.io/v1alpha1
+kind: SandboxWarmPool
+metadata:
+  name: orderflow-gvisor-warmpool
+  namespace: orderflow-sandboxes
+spec:
+  replicas: 4
+  sandboxTemplateRef:
+    name: orderflow-gvisor-runner-tmpl
+---
+apiVersion: extensions.agents.x-k8s.io/v1alpha1
+kind: SandboxClaim
+metadata:
+  name: orderflow-sre-claim-001
+  namespace: orderflow-sandboxes
+spec:
+  sandboxTemplateRef:
+    name: orderflow-gvisor-runner-tmpl
+  lifecycle:
+    shutdownPolicy: Delete

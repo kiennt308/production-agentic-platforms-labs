@@ -1,0 +1,16 @@
+# Author: Kien Nguyen
+# Negative control: in-prompt-only filter & disabled kill switch
+apiVersion: orderflow.platform/v1
+kind: OrderFlowGuardrailConfig
+metadata:
+  name: unsafe-in-prompt-guardrail
+  namespace: default
+spec:
+  enforcement_mode: "in_prompt_only"
+  rag_isolation:
+    strip_embedded_instructions: false
+  a2a:
+    require_signed_envelope: false
+  kill_switch:
+    enabled: false
+    max_tool_calls_per_task: 99

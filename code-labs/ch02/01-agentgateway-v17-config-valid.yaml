@@ -1,0 +1,54 @@
+# Author: Kien Nguyen
+# Chapter 02: agentgateway v1.7.0 unified LLM/MCP/A2A policy baseline
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayBackend
+metadata:
+  name: orderflow-mcp-tools-backend
+  namespace: orderflow-agent-platform
+spec:
+  mcp:
+    targets:
+      - name: orderflow-k8s-readonly
+        host: mcp-k8s.orderflow-tools.svc.cluster.local
+        port: 8443
+        protocol: StreamableHTTP
+        tls:
+          sni: mcp-k8s.orderflow-tools.svc.cluster.local
+---
+apiVersion: agentgateway.dev/v1alpha1
+kind: BackendPolicy
+metadata:
+  name: orderflow-llm-backend-policy
+  namespace: orderflow-agent-platform
+spec:
+  targetRefs:
+    - group: agentgateway.dev
+      kind: AgentgatewayBackend
+      name: orderflow-mcp-tools-backend
+  llm:
+    tokenCostAnalytics: true
+    providerFailover:
+      primary: local-ollama-vllm
+      secondary: managed-bedrock-guardrail
+  timeoutMs: 15000
+---
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayPolicy
+metadata:
+  name: orderflow-mcp-security-policy
+  namespace: orderflow-agent-platform
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: orderflow-agent-egress
+  mcp:
+    session_encryption_enabled: true
+    encryption_cipher: "AES-256-GCM"
+    cel_allowed_tools:
+      - "mcp.tool.name in ['kubectl_get_pods', 'read_otel_trace']"
+      - "mcp.tool.name == 'query_prometheus' && args.svc != ''"
+  guardrails:
+    tool_output_inspection: true
+    prompt_guard_mode: "universal_tool_output"
+    block_on_injection: true

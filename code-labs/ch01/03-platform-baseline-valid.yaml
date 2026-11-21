@@ -1,0 +1,48 @@
+apiVersion: orderflow.platform/v1
+kind: OrderFlowAgentPlatformBaseline
+metadata:
+  name: orderflow-enterprise-agentic-control-plane
+  namespace: orderflow-agent-platform
+spec:
+  author: "Kien Nguyen"
+  repo_owner: "kiennt308"
+  repo_name: "production-agentic-platforms-labs"
+  gateway:
+    primary: "agentgateway-v1.7.0"
+    secondary: "agent-router-v1beta1"
+    allow_direct_egress: false
+    mcp_session_encryption: true
+  sandbox:
+    controller: "agent-sandbox-v1.0.x"
+    runtime_class: "gvisor"
+    warm_pool_min_replicas: 2
+  security:
+    owasp_asi_covered:
+      - ASI01
+      - ASI02
+      - ASI03
+      - ASI04
+      - ASI05
+      - ASI06
+      - ASI07
+      - ASI08
+      - ASI09
+      - ASI10
+    kill_switch_enabled: true
+    governance_frameworks:
+      - "EU AI Act"
+      - "NIST AI RMF"
+      - "ISO/IEC 42001"
+  observability:
+    provider_attribute: "gen_ai.provider.name"
+    uses_deprecated_gen_ai_system: false
+    mcp_meta_traceparent: true
+    default_content_capture: false
+  evals:
+    promptfoo_enabled: true
+    deepeval_enabled: true
+    pytest_gate: true
+  finops:
+    focus_bridge: "1.2-1.3-1.4-to-1.5"
+    claims_native_focus12_tokens: false
+    token_budget_enforced: true

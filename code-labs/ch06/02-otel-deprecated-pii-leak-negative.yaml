@@ -1,0 +1,23 @@
+apiVersion: orderflow.platform/v1
+kind: OrderFlowOtelGenAIConfig
+metadata:
+  name: deprecated-unredacted-genai-anti-pattern
+  namespace: default
+spec:
+  uses_gen_ai_system_attr: true
+  provider_attr: "gen_ai.system"
+  mcp_meta_traceparent_enabled: false
+  capture_message_content_default: true
+  pii_redaction_enabled: false
+  collector_pipeline:
+    receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: "0.0.0.0:4318"
+    processors:
+      batch:
+        send_batch_size: 256
+    exporters:
+      debug:
+        verbosity: "detailed"

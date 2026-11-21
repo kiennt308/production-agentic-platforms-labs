@@ -1,0 +1,36 @@
+# Author: Kien Nguyen
+# Chapter 05: Kyverno v1.19 CEL ValidatingPolicy (policies.kyverno.io/v1)
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: orderflow-enforce-gvisor-and-gateway-egress
+spec:
+  validationActions:
+    - Deny
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  matchConditions:
+    - name: is-orderflow-agent-ns
+      expression: >-
+        object.metadata.namespace == 'orderflow-agent-platform'
+  validations:
+    - expression: >-
+        has(object.spec.runtimeClassName) &&
+        object.spec.runtimeClassName == 'gvisor'
+      message: "Agent pods must use gVisor runtimeClassName."
+    - expression: >-
+        !has(object.spec.hostNetwork) ||
+        object.spec.hostNetwork == false
+      message: "hostNetwork is forbidden on OrderFlow agent pods."
+    - expression: >-
+        object.spec.containers.all(c,
+          has(c.env) && c.env.exists(e,
+            e.name == 'ORDERFLOW_GATEWAY_URL' &&
+            e.value.startsWith('https://agentgateway.')
+          )
+        )
+      message: "All containers must route egress via agentgateway."

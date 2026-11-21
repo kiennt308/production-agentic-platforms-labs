@@ -1,0 +1,38 @@
+# Author: Kien Nguyen
+# Chapter 04: Principle of Least Agency & OWASP ASI01-ASI10 Baseline
+apiVersion: orderflow.platform/v1
+kind: OrderFlowAgentAgencySpec
+metadata:
+  name: orderflow-least-agency-baseline
+  namespace: orderflow-agent-platform
+spec:
+  owasp_asi_covered:
+    - ASI01
+    - ASI02
+    - ASI03
+    - ASI04
+    - ASI05
+    - ASI06
+    - ASI07
+    - ASI08
+    - ASI09
+    - ASI10
+  least_agency:
+    cluster_admin_bound: false
+    token_ttl_seconds: 300
+    delegation_grant: "rfc8693-scoped"
+    scoped_roles:
+      - "orderflow-sre-readonly"
+      - "orderflow-devops-pr-writer"
+    human_approval_verbs:
+      - "delete"
+      - "patch-prod-ingress"
+  supply_chain:
+    mcp_sha256_pinned: true
+    pinned_servers:
+      - name: "mcp-k8s-readonly"
+        sha256: >-
+          3b8c1f9a2d4e60718593ab0c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70
+      - name: "mcp-prometheus-query"
+        sha256: >-
+          9f8e7d6c5b4a3210fedcba9876543210abcdef0123456789fedcba9876543210

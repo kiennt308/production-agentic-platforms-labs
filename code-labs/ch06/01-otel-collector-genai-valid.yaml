@@ -1,0 +1,61 @@
+apiVersion: orderflow.platform/v1
+kind: OrderFlowOtelGenAIConfig
+metadata:
+  name: orderflow-otel-genai-collector
+  namespace: orderflow-observability
+spec:
+  author: "Kien Nguyen"
+  collector_version: "v0.165.0"
+  otel_api_version: "1.44.0"
+  uses_gen_ai_system_attr: false
+  provider_attr: "gen_ai.provider.name"
+  mcp_meta_traceparent_enabled: true
+  capture_message_content_default: false
+  pii_redaction_enabled: true
+  collector_pipeline:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "127.0.0.1:4317"
+          http:
+            endpoint: "127.0.0.1:4318"
+    processors:
+      redaction/genai:
+        allow_all_keys: false
+        allowed_keys:
+          - "gen_ai.operation.name"
+          - "gen_ai.provider.name"
+          - "gen_ai.request.model"
+          - "gen_ai.tool.name"
+          - "mcp.method.name"
+          - "a2a.skill"
+        blocked_values:
+          - "sk-[A-Za-z0-9_-]{8,}"
+          - "Bearer [A-Za-z0-9._-]+"
+          - "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        summary: "silent"
+      attributes/optin_privacy:
+        actions:
+          - key: "gen_ai.input.messages"
+            action: "delete"
+          - key: "gen_ai.output.messages"
+            action: "delete"
+      batch:
+        send_batch_size: 512
+        timeout: "5s"
+    exporters:
+      otlphttp/clickhouse:
+        endpoint: "http://127.0.0.1:4318"
+        compression: "gzip"
+      debug:
+        verbosity: "basic"
+    service:
+      pipelines:
+        traces:
+          receivers: ["otlp"]
+          processors:
+            - "attributes/optin_privacy"
+            - "redaction/genai"
+            - "batch"
+          exporters: ["otlphttp/clickhouse", "debug"]

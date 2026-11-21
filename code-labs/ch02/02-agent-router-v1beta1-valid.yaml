@@ -1,0 +1,37 @@
+# Author: Kien Nguyen
+# Chapter 02: Agent Router v1.1+ (aigateway.envoyproxy.io/v1beta1)
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: AIGatewayRoute
+metadata:
+  name: orderflow-agent-router-v1beta1
+  namespace: orderflow-agent-platform
+  annotations:
+    gateway.orderflow.io/pattern: "two-tier-inferencepool"
+spec:
+  direct_egress_bypass: false
+  parentRefs:
+    - name: orderflow-edge-ai-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  mcp:
+    oauth_exchange_enabled: true
+    grant_standard: "rfc8693-token-exchange"
+    audience: "urn:orderflow:mcp-tools"
+  rate_limiting:
+    token_budget_enabled: true
+    tokens_per_minute_limit: 120000
+    per_tenant_quota: true
+  rules:
+    - matches:
+        - headers:
+            - name: x-ai-eg-model
+              value: "orderflow-sre-reasoner"
+      backendRefs:
+        - name: orderflow-inference-pool-primary
+          group: inference.networking.x-k8s.io
+          kind: InferencePool
+          weight: 90
+        - name: orderflow-bedrock-backup
+          group: aigateway.envoyproxy.io
+          kind: AIServiceBackend
+          weight: 10

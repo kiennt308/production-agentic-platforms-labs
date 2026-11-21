@@ -1,0 +1,30 @@
+{
+  "scenario": "orderflow-checkout-sre-trace",
+  "host_agent": "urn:agent:orderflow-sre",
+  "provider": "aws.bedrock",
+  "model": "anthropic.claude-sonnet-4-6",
+  "raw_prompt": "ORD-98421 alice@orderflow.io sk-proj-98765432abcdef",
+  "raw_response": "Aurora lock; Bearer tok_live_abc123def456 expired",
+  "mcp_request": {
+    "jsonrpc": "2.0",
+    "id": 101,
+    "method": "tools/call",
+    "params": {
+      "name": "query_order_db",
+      "arguments": {
+        "order_id": "ORD-98421",
+        "requester": "alice@orderflow.io",
+        "auth_hint": "Bearer tok_live_abc123def456"
+      },
+      "_meta": {
+        "traceparent": ""
+      }
+    }
+  },
+  "a2a_handoff": {
+    "target_agent": "urn:agent:orderflow-devops",
+    "skill": "verify_helm_rollback",
+    "headers": {},
+    "note": "Escalate key sk-admin-1122334455667788 alert"
+  }
+}

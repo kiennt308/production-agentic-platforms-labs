@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "author": "Kien Nguyen",
+    "chapter": "ch02",
+    "gateways": ["agentgateway-v1.7.0", "agent-router-v1beta1"]
+  },
+  "gateway_configs": {
+    "agentgateway-v1.7.0": {
+      "mcp_session_encryption": true,
+      "tool_output_inspection": true,
+      "cel_allowed_tools": [
+        "kubectl_get_pods",
+        "query_prometheus",
+        "read_otel_trace"
+      ],
+      "primary_healthy": true,
+      "fallback_gateway": "agent-router-v1beta1"
+    },
+    "agent-router-v1beta1": {
+      "api_version": "aigateway.envoyproxy.io/v1beta1",
+      "oauth_exchange_enabled": true,
+      "token_budget_enabled": true,
+      "max_tokens_per_min": 120000,
+      "direct_egress_bypass": false
+    }
+  },
+  "scenarios": [
+    {
+      "id": "scn-01-mcp-valid-sre",
+      "fleet": "urn:agent:orderflow-sre",
+      "gateway": "agentgateway-v1.7.0",
+      "tool": "kubectl_get_pods",
+      "args": {"namespace": "orderflow-prod"},
+      "direct_egress": false,
+      "tokens_requested": 1800,
+      "primary_up": true,
+      "expected_status": "ALLOWED",
+      "expected_routed_via": "agentgateway-v1.7.0"
+    },
+    {
+      "id": "scn-02-cel-tool-denied",
+      "fleet": "urn:agent:orderflow-devops",
+      "gateway": "agentgateway-v1.7.0",
+      "tool": "kubectl_delete_ns",
+      "args": {"namespace": "orderflow-prod"},
+      "direct_egress": false,
+      "tokens_requested": 900,
+      "primary_up": true,
+      "expected_status": "DENIED_CEL_ALLOWLIST",
+      "expected_routed_via": "blocked"
+    },
+    {
+      "id": "scn-03-direct-bypass-denied",
+      "fleet": "urn:agent:orderflow-aws",
+      "gateway": "agent-router-v1beta1",
+      "tool": "read_otel_trace",
+      "args": {"trace_id": "4bf92f"},
+      "direct_egress": true,
+      "tokens_requested": 1500,
+      "primary_up": true,
+      "expected_status": "DENIED_DIRECT_BYPASS",
+      "expected_routed_via": "blocked"
+    },
+    {
+      "id": "scn-04-failover-to-router",
+      "fleet": "urn:agent:orderflow-devsecops",
+      "gateway": "agentgateway-v1.7.0",
+      "tool": "query_prometheus",
+      "args": {"svc": "checkout"},
+      "direct_egress": false,
+      "tokens_requested": 2400,
+      "primary_up": false,
+      "expected_status": "ALLOWED_FAILOVER",
+      "expected_routed_via": "agent-router-v1beta1"
+    },
+    {
+      "id": "scn-05-token-budget-exceeded",
+      "fleet": "urn:agent:orderflow-sre",
+      "gateway": "agent-router-v1beta1",
+      "tool": "read_otel_trace",
+      "args": {"trace_id": "77ab10"},
+      "direct_egress": false,
+      "tokens_requested": 150000,
+      "primary_up": true,
+      "expected_status": "DENIED_TOKEN_BUDGET",
+      "expected_routed_via": "blocked"
+    }
+  ]
+}

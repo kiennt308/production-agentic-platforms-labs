@@ -1,0 +1,22 @@
+# Author: Kien Nguyen
+# Negative control: static admin, 24h token TTL, unpinned MCP, gap
+apiVersion: orderflow.platform/v1
+kind: OrderFlowAgentAgencySpec
+metadata:
+  name: overprivileged-rogue-agent
+  namespace: default
+spec:
+  owasp_asi_covered:
+    - ASI01
+    - ASI02
+    - ASI03
+    - ASI04
+    - ASI05
+  least_agency:
+    cluster_admin_bound: true
+    token_ttl_seconds: 86400
+  supply_chain:
+    mcp_sha256_pinned: false
+    pinned_servers:
+      - name: "mcp-floating-latest"
+        sha256: "latest"
